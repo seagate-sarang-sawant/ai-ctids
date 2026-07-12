@@ -1,0 +1,51 @@
+# Prometheus configuration for AI-CTIDS monitoring
+
+global:
+  scrape_interval: 15s
+  evaluation_interval: 15s
+  external_labels:
+    cluster: 'ai-ctids'
+    environment: 'production'
+
+# Alertmanager configuration
+alerting:
+  alertmanagers:
+    - static_configs:
+        - targets:
+            - alertmanager:9093
+
+# Load rules once and periodically evaluate them
+rule_files:
+  - "alerts/*.yml"
+
+# Scrape configurations
+scrape_configs:
+  # Prometheus itself
+  - job_name: 'prometheus'
+    static_configs:
+      - targets: ['localhost:9090']
+
+  # Inference API
+  - job_name: 'inference-api'
+    static_configs:
+      - targets: ['inference-api:8000']
+    metrics_path: '/metrics'
+    scrape_interval: 10s
+
+  # Streaming Consumer
+  - job_name: 'streaming-consumer'
+    static_configs:
+      - targets: ['streaming-consumer:8001']
+    scrape_interval: 10s
+
+  # Drift Monitor
+  - job_name: 'drift-monitor'
+    static_configs:
+      - targets: ['drift-monitor:8002']
+    scrape_interval: 30s
+
+  # Kafka Exporter (optional)
+  - job_name: 'kafka'
+    static_configs:
+      - targets: ['kafka-exporter:9308']
+    scrape_interval: 30s

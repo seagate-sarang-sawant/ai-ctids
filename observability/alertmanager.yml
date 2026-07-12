@@ -1,0 +1,37 @@
+global:
+  resolve_timeout: 5m
+
+route:
+  group_by: ['alertname', 'service']
+  group_wait: 10s
+  group_interval: 10s
+  repeat_interval: 12h
+  receiver: 'default-receiver'
+  routes:
+    - match:
+        severity: critical
+      receiver: 'critical-receiver'
+      continue: true
+    - match:
+        severity: warning
+      receiver: 'warning-receiver'
+      continue: true
+
+receivers:
+  - name: 'default-receiver'
+    # Add your notification channels here (email, slack, etc.)
+    # For now, this is a placeholder receiver
+    
+  - name: 'critical-receiver'
+    # Critical alerts configuration
+    # Example: Send to Slack, PagerDuty, email, etc.
+    
+  - name: 'warning-receiver'
+    # Warning alerts configuration
+
+inhibit_rules:
+  - source_match:
+      severity: 'critical'
+    target_match:
+      severity: 'warning'
+    equal: ['alertname', 'service']

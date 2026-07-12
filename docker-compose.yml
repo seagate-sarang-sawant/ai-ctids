@@ -1,0 +1,189 @@
+services:
+  # Kafka infrastructure
+  zookeeper:
+    image: confluentinc/cp-zookeeper:7.5.0
+    environment:
+      ZOOKEEPER_CLIENT_PORT: 2181
+      ZOOKEEPER_TICK_TIME: 2000
+    ports:
+      - "2181:2181"
+    networks:
+      - ai-ctids
+
+  kafka:
+    image: confluentinc/cp-kafka:7.5.0
+    depends_on:
+      - zookeeper
+    ports:
+      - "9092:9092"
+    environment:
+      KAFKA_BROKER_ID: 1
+      KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:9092
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+      KAFKA_AUTO_CREATE_TOPICS_ENABLE: "true"
+    networks:
+      - ai-ctids
+
+  # Inference API
+  inference-api:
+    build:
+      context: .
+      dockerfile: inference-api/Dockerfile
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./models:/app/models
+      - ./shared:/app/shared
+    environment:
+      - MODEL_PATH=/app/models/xgboost_model.pkl
+      - MODELS_DIR=/app/models
+    networks:
+      - ai-ctids
+    depends_on:
+      - prometheus
+
+  # Streaming Consumer (uses PROCESSED flows for low latency)
+  streaming-consumer:
+    build:
+      context: .
+      dockerfile: streaming-consumer/Dockerfile
+    ports:
+      - "8001:8001"
+    volumes:
+      - ./models:/app/models
+      - ./shared:/app/shared
+    environment:
+      - KAFKA_BOOTSTRAP_SERVERS=kafka:9092
+      - KAFKA_INPUT_TOPIC=network-flows-processed
+      - KAFKA_OUTPUT_TOPIC=threat-predictions
+      - MODEL_PATH=/app/models/xgboost_model.pkl
+    networks:
+      - ai-ctids
+    depends_on:
+      - kafka
+      - preprocessing-service
+
+  # Data Ingestion (publishes to RAW topic)
+  data-ingestion:
+    build:
+      context: .
+      dockerfile: data-ingestion/Dockerfile
+    volumes:
+      - ./data:/app/data
+      - ./shared:/app/shared
+    environment:
+      - KAFKA_BOOTSTRAP_SERVERS=kafka:9092
+      - KAFKA_INPUT_TOPIC=network-flows-raw
+    command: >
+      python generate.py
+      --data-path /app/data/cicids2017.csv
+      --mode stream
+      --rate 5
+      --kafka-servers kafka:9092
+      --topic network-flows-raw
+    networks:
+      - ai-ctids
+    depends_on:
+      - kafka
+
+  # Preprocessing Service (RAW → PROCESSED)
+  preprocessing-service:
+    build:
+      context: .
+      dockerfile: preprocessing-service/Dockerfile
+    ports:
+      - "8003:8003"
+    volumes:
+      - ./models:/app/models
+      - ./shared:/app/shared
+    environment:
+      - KAFKA_BOOTSTRAP_SERVERS=kafka:9092
+    command: >
+      python preprocessor.py
+      --input-topic network-flows-raw
+      --output-topic network-flows-processed
+      --kafka-servers kafka:9092
+    networks:
+      - ai-ctids
+    depends_on:
+      - kafka
+
+  # Drift Monitor (uses RAW flows for accurate drift detection)
+  drift-monitor:
+    build:
+      context: .
+      dockerfile: drift-monitor/Dockerfile
+    ports:
+      - "8002:8002"
+    volumes:
+      - ./data:/app/data
+      - ./shared:/app/shared
+    environment:
+      - KAFKA_BOOTSTRAP_SERVERS=kafka:9092
+      - KAFKA_INPUT_TOPIC=network-flows-raw
+    command: >
+      python monitor.py
+      --reference-data /app/data/cicids2017.csv
+      --kafka-servers kafka:9092
+      --topic network-flows-raw
+      --window-size 10000
+      --psi-threshold 0.2
+    networks:
+      - ai-ctids
+    depends_on:
+      - kafka
+
+  # Prometheus
+  prometheus:
+    image: prom/prometheus:latest
+    ports:
+      - "9090:9090"
+    volumes:
+      - ./observability/prometheus.yml:/etc/prometheus/prometheus.yml
+      - ./observability/alerts:/etc/prometheus/alerts
+      - prometheus-data:/prometheus
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yml'
+      - '--storage.tsdb.path=/prometheus'
+      - '--web.console.libraries=/usr/share/prometheus/console_libraries'
+      - '--web.console.templates=/usr/share/prometheus/consoles'
+    networks:
+      - ai-ctids
+
+  # Grafana
+  grafana:
+    image: grafana/grafana:latest
+    ports:
+      - "3000:3000"
+    volumes:
+      - ./observability/grafana/dashboards:/etc/grafana/provisioning/dashboards
+      - grafana-data:/var/lib/grafana
+    environment:
+      - GF_SECURITY_ADMIN_USER=admin
+      - GF_SECURITY_ADMIN_PASSWORD=admin
+      - GF_INSTALL_PLUGINS=
+    networks:
+      - ai-ctids
+    depends_on:
+      - prometheus
+
+  # Alertmanager
+  alertmanager:
+    image: prom/alertmanager:latest
+    ports:
+      - "9093:9093"
+    volumes:
+      - ./observability/alertmanager.yml:/etc/alertmanager/alertmanager.yml
+    command:
+      - '--config.file=/etc/alertmanager/alertmanager.yml'
+    networks:
+      - ai-ctids
+
+networks:
+  ai-ctids:
+    driver: bridge
+
+volumes:
+  prometheus-data:
+  grafana-data:

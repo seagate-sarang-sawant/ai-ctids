@@ -1,0 +1,184 @@
+name: Train and Publish Model
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+    inputs:
+      data_subset:
+        description: 'Use data subset for faster testing'
+        required: false
+        default: 'true'
+
+env:
+  PYTHON_VERSION: '3.10'
+  WANDB_PROJECT: ai-ctids
+  MODEL_THRESHOLD_ACCURACY: 0.85
+  MODEL_THRESHOLD_F1: 0.80
+
+jobs:
+  train:
+    name: Train Models
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+      
+      - name: Cache dependencies
+        uses: actions/cache@v3
+        with:
+          path: ~/.cache/pip
+          key: ${{ runner.os }}-pip-${{ hashFiles('**/requirements.txt') }}
+          restore-keys: |
+            ${{ runner.os }}-pip-
+      
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r batch-trainer/requirements.txt
+      
+      - name: Download dataset
+        run: |
+          # In production, download from secure storage (S3, GCS, etc.)
+          # For demo, use a subset or synthetic data
+          echo "Downloading CICIDS2017 dataset..."
+          mkdir -p data
+          # Add actual dataset download logic here
+      
+      - name: Train models
+        env:
+          WANDB_API_KEY: ${{ secrets.WANDB_API_KEY }}
+        run: |
+          cd batch-trainer
+          python train.py \
+            --data-path ../data/cicids2017.csv \
+            --output-dir ../models \
+            --models xgboost logistic_regression
+      
+      - name: Upload model artifacts
+        uses: actions/upload-artifact@v3
+        with:
+          name: trained-models
+          path: models/
+          retention-days: 30
+  
+  evaluate:
+    name: Evaluate Models
+    needs: train
+    runs-on: ubuntu-latest
+    outputs:
+      should_deploy: ${{ steps.check_metrics.outputs.deploy }}
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+      
+      - name: Install dependencies
+        run: |
+          pip install -r batch-trainer/requirements.txt
+      
+      - name: Download model artifacts
+        uses: actions/download-artifact@v3
+        with:
+          name: trained-models
+          path: models/
+      
+      - name: Evaluate XGBoost model
+        run: |
+          cd batch-trainer
+          python evaluate.py \
+            --model-path ../models/xgboost_model.pkl \
+            --model-type xgboost \
+            --test-data ../data/test_data.csv
+      
+      - name: Check metrics threshold
+        id: check_metrics
+        run: |
+          # Read metadata and check thresholds
+          ACCURACY=$(cat models/xgboost_model_metadata.json | jq -r '.metrics.accuracy')
+          F1=$(cat models/xgboost_model_metadata.json | jq -r '.metrics.f1_macro')
+          
+          echo "Accuracy: $ACCURACY"
+          echo "F1 Score: $F1"
+          
+          if (( $(echo "$ACCURACY >= $MODEL_THRESHOLD_ACCURACY" | bc -l) )) && \
+             (( $(echo "$F1 >= $MODEL_THRESHOLD_F1" | bc -l) )); then
+            echo "deploy=true" >> $GITHUB_OUTPUT
+            echo "✅ Model meets quality thresholds"
+          else
+            echo "deploy=false" >> $GITHUB_OUTPUT
+            echo "❌ Model does not meet quality thresholds"
+            exit 1
+          fi
+  
+  build-and-push:
+    name: Build and Push Docker Images
+    needs: evaluate
+    if: needs.evaluate.outputs.should_deploy == 'true'
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      
+      - name: Download model artifacts
+        uses: actions/download-artifact@v3
+        with:
+          name: trained-models
+          path: models/
+      
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+      
+      - name: Login to Docker Hub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKER_USERNAME }}
+          password: ${{ secrets.DOCKER_PASSWORD }}
+      
+      - name: Build and push inference-api
+        uses: docker/build-push-action@v5
+        with:
+          context: ./inference-api
+          push: true
+          tags: |
+            ${{ secrets.DOCKER_USERNAME }}/ai-ctids-inference:latest
+            ${{ secrets.DOCKER_USERNAME }}/ai-ctids-inference:${{ github.sha }}
+          cache-from: type=registry,ref=${{ secrets.DOCKER_USERNAME }}/ai-ctids-inference:latest
+          cache-to: type=inline
+      
+      - name: Build and push streaming-consumer
+        uses: docker/build-push-action@v5
+        with:
+          context: ./streaming-consumer
+          push: true
+          tags: |
+            ${{ secrets.DOCKER_USERNAME }}/ai-ctids-consumer:latest
+            ${{ secrets.DOCKER_USERNAME }}/ai-ctids-consumer:${{ github.sha }}
+  
+  deploy:
+    name: Deploy to Production
+    needs: build-and-push
+    runs-on: ubuntu-latest
+    environment: production
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      
+      - name: Deploy to Kubernetes (or update docker-compose)
+        run: |
+          echo "Deploying to production..."
+          # Add deployment logic here (kubectl, docker-compose, etc.)

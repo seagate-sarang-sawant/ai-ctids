@@ -1,0 +1,71 @@
+# Alerting rules for drift detection
+
+groups:
+  - name: drift_detection
+    interval: 60s
+    rules:
+      - alert: HighFeatureDrift
+        expr: drift_psi_score > 0.25
+        for: 5m
+        labels:
+          severity: warning
+          component: drift-monitor
+        annotations:
+          summary: "High drift detected on feature {{ $labels.feature }}"
+          description: "PSI score {{ $value | humanize }} exceeds threshold for feature {{ $labels.feature }}"
+
+      - alert: CriticalFeatureDrift
+        expr: drift_psi_score > 0.5
+        for: 2m
+        labels:
+          severity: critical
+          component: drift-monitor
+        annotations:
+          summary: "Critical drift detected on feature {{ $labels.feature }}"
+          description: "PSI score {{ $value | humanize }} indicates severe drift for feature {{ $labels.feature }}"
+
+  - name: model_performance
+    interval: 30s
+    rules:
+      - alert: HighPredictionLatency
+        expr: histogram_quantile(0.95, rate(prediction_latency_seconds_bucket[5m])) > 1.0
+        for: 5m
+        labels:
+          severity: warning
+          component: inference-api
+        annotations:
+          summary: "High prediction latency detected"
+          description: "95th percentile prediction latency is {{ $value | humanize }}s"
+
+      - alert: LowPredictionThroughput
+        expr: rate(predictions_total[5m]) < 1
+        for: 10m
+        labels:
+          severity: info
+          component: inference-api
+        annotations:
+          summary: "Low prediction throughput"
+          description: "Prediction rate is {{ $value | humanize }} per second"
+
+  - name: kafka_consumer
+    interval: 30s
+    rules:
+      - alert: HighConsumerErrors
+        expr: rate(kafka_consumer_errors_total[5m]) > 0.1
+        for: 5m
+        labels:
+          severity: warning
+          component: streaming-consumer
+        annotations:
+          summary: "High error rate in Kafka consumer"
+          description: "Error rate is {{ $value | humanize }} per second for {{ $labels.error_type }}"
+
+      - alert: ConsumerLag
+        expr: kafka_consumer_lag > 10000
+        for: 5m
+        labels:
+          severity: warning
+          component: streaming-consumer
+        annotations:
+          summary: "High consumer lag detected"
+          description: "Consumer lag is {{ $value }} messages"
