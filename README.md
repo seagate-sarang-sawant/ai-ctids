@@ -201,6 +201,8 @@ MIT License - See LICENSE file for details
 - [Architecture](docs/ARCHITECTURE.md) - System design and components
 - [Project Summary](docs/PROJECT_SUMMARY.md) - Complete feature list
 - [Contributing](CONTRIBUTING.md) - Development guidelines
+- [Pandas vs NumPy Quick Reference](docs/QUICK_REFERENCE_PANDAS_VS_NUMPY.md) - Aggregation behavior guide
+- [Why .sum().sum()?](docs/PANDAS_SUM_EXPLAINED.md) - Detailed explanation with examples
 
 ## 🛠️ Development Commands
 
