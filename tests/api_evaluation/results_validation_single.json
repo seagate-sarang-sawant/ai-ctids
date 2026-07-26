@@ -1,0 +1,275 @@
+{
+  "metrics": {
+    "accuracy": 0.6538461538461539,
+    "precision_macro": 0.13945578231292519,
+    "recall_macro": 0.16666666666666666,
+    "f1_macro": 0.15040650406504066,
+    "precision_weighted": 0.4466248037676609,
+    "recall_weighted": 0.6538461538461539,
+    "f1_weighted": 0.5300187617260789
+  },
+  "predictions": [
+    [
+      "BENIGN",
+      "BENIGN"
+    ],
+    [
+      "DoS GoldenEye",
+      "BENIGN"
+    ],
+    [
+      "BENIGN",
+      "BENIGN"
+    ],
+    [
+      "DDoS",
+      "BENIGN"
+    ],
+    [
+      "BENIGN",
+      "BENIGN"
+    ],
+    [
+      "BENIGN",
+      "BENIGN"
+    ],
+    [
+      "DoS Hulk",
+      "BENIGN"
+    ],
+    [
+      "BENIGN",
+      "BENIGN"
+    ],
+    [
+      "BENIGN",
+      "BENIGN"
+    ],
+    [
+      "BENIGN",
+      "BENIGN"
+    ],
+    [
+      "FTP-Patator",
+      "BENIGN"
+    ],
+    [
+      "BENIGN",
+      "BENIGN"
+    ],
+    [
+      "Web Attack \ufffd Sql Injection",
+      "BENIGN"
+    ],
+    [
+      "Bot",
+      "BENIGN"
+    ],
+    [
+      "DoS Hulk",
+      "BENIGN"
+    ],
+    [
+      "BENIGN",
+      "BENIGN"
+    ],
+    [
+      "DoS Slowhttptest",
+      "BENIGN"
+    ],
+    [
+      "BENIGN",
+      "BENIGN"
+    ],
+    [
+      "BENIGN",
+      "BENIGN"
+    ],
+    [
+      "BENIGN",
+      "BENIGN"
+    ],
+    [
+      "DoS Hulk",
+      "BENIGN"
+    ],
+    [
+      "BENIGN",
+      "BENIGN"
+    ],
+    [
+      "Infiltration",
+      "BENIGN"
+    ],
+    [
+      "BENIGN",
+      "BENIGN"
+    ],
+    [
+      "BENIGN",
+      "BENIGN"
+    ],
+    [
+      "FTP-Patator",
+      "BENIGN"
+    ],
+    [
+      "DoS slowloris",
+      "DoS Slowhttptest"
+    ],
+    [
+      "BENIGN",
+      "BENIGN"
+    ],
+    [
+      "BENIGN",
+      "BENIGN"
+    ],
+    [
+      "BENIGN",
+      "BENIGN"
+    ],
+    [
+      "BENIGN",
+      "BENIGN"
+    ],
+    [
+      "BENIGN",
+      "BENIGN"
+    ],
+    [
+      "BENIGN",
+      "BENIGN"
+    ],
+    [
+      "BENIGN",
+      "BENIGN"
+    ],
+    [
+      "DoS Hulk",
+      "BENIGN"
+    ],
+    [
+      "BENIGN",
+      "BENIGN"
+    ],
+    [
+      "BENIGN",
+      "BENIGN"
+    ],
+    [
+      "DoS Hulk",
+      "BENIGN"
+    ],
+    [
+      "BENIGN",
+      "BENIGN"
+    ],
+    [
+      "BENIGN",
+      "BENIGN"
+    ],
+    [
+      "BENIGN",
+      "BENIGN"
+    ],
+    [
+      "BENIGN",
+      "BENIGN"
+    ],
+    [
+      "Bot",
+      "BENIGN"
+    ],
+    [
+      "DoS Hulk",
+      "BENIGN"
+    ],
+    [
+      "BENIGN",
+      "BENIGN"
+    ],
+    [
+      "Web Attack \ufffd Brute Force",
+      "BENIGN"
+    ],
+    [
+      "BENIGN",
+      "BENIGN"
+    ],
+    [
+      "BENIGN",
+      "BENIGN"
+    ],
+    [
+      "DoS slowloris",
+      "DoS Slowhttptest"
+    ],
+    [
+      "BENIGN",
+      "BENIGN"
+    ],
+    [
+      "SSH-Patator",
+      "SSH-Patator"
+    ],
+    [
+      "BENIGN",
+      "BENIGN"
+    ]
+  ],
+  "inference_times_ms": [
+    8.89134407043457,
+    3.819704055786133,
+    3.449678421020508,
+    3.5126209259033203,
+    3.3349990844726562,
+    2.8405189514160156,
+    2.93731689453125,
+    3.0384063720703125,
+    3.1795501708984375,
+    4.182100296020508,
+    3.391742706298828,
+    3.1065940856933594,
+    2.964019775390625,
+    2.976655960083008,
+    3.857135772705078,
+    4.0149688720703125,
+    2.9740333557128906,
+    2.9516220092773438,
+    3.359079360961914,
+    2.9153823852539062,
+    2.8281211853027344,
+    3.2706260681152344,
+    2.943754196166992,
+    2.730131149291992,
+    2.5899410247802734,
+    3.0570030212402344,
+    2.4595260620117188,
+    2.6373863220214844,
+    3.597736358642578,
+    2.830982208251953,
+    3.350973129272461,
+    3.1213760375976562,
+    3.3664703369140625,
+    2.768993377685547,
+    2.7163028717041016,
+    2.7844905853271484,
+    2.9125213623046875,
+    2.9740333557128906,
+    3.3113956451416016,
+    2.7616024017333984,
+    2.74658203125,
+    2.512693405151367,
+    2.749919891357422,
+    3.4186840057373047,
+    3.3283233642578125,
+    3.1061172485351562,
+    2.593994140625,
+    2.995014190673828,
+    2.4297237396240234,
+    3.1540393829345703,
+    2.506256103515625,
+    2.6137828826904297
+  ]
+}

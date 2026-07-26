@@ -5,7 +5,7 @@ Based on CICIDS2017 dataset schema from the notebook.
 
 from datetime import datetime
 from typing import List, Optional, Dict, Any
-from pydantic import BaseModel, Field, validator
+from pydantic import BaseModel, Field, validator, ConfigDict
 from enum import Enum
 
 
@@ -43,20 +43,20 @@ class ThreatLabel(str, Enum):
 
 class NetworkFlowEvent(BaseMessage):
     """Network flow event representing a single traffic flow.
-    
-    Features extracted from CICIDS2017 dataset.
+
+    Features extracted from CICIDS2017 dataset (63 features).
     """
-    
+
     # Flow identifiers
     destination_port: int = Field(..., ge=0, le=65535)
-    
+
     # Flow characteristics
     flow_duration: float = Field(..., ge=0)
     total_fwd_packets: float = Field(..., ge=0)
     total_backward_packets: float = Field(..., ge=0)
     total_length_of_fwd_packets: float = Field(..., ge=0)
     total_length_of_bwd_packets: float = Field(..., ge=0)
-    
+
     # Packet statistics
     fwd_packet_length_max: float = Field(..., ge=0)
     fwd_packet_length_min: float = Field(..., ge=0)
@@ -66,20 +66,81 @@ class NetworkFlowEvent(BaseMessage):
     bwd_packet_length_min: float = Field(..., ge=0)
     bwd_packet_length_mean: float = Field(..., ge=0)
     bwd_packet_length_std: float = Field(..., ge=0)
-    
+
     # Flow metrics
-    flow_bytes_s: float
-    flow_packets_s: float
+    flow_bytes_s: float = Field(..., alias='flow_bytes/s')
+    flow_packets_s: float = Field(..., alias='flow_packets/s')
     flow_iat_mean: float
     flow_iat_std: float
     flow_iat_max: float
     flow_iat_min: float
-    
-    # Additional features (63 total selected features)
-    # Add remaining features as needed
-    
+
+    # IAT statistics
+    fwd_iat_total: float
+    fwd_iat_mean: float
+    fwd_iat_std: float
+    fwd_iat_max: float
+    fwd_iat_min: float
+    bwd_iat_total: float
+    bwd_iat_mean: float
+    bwd_iat_std: float
+    bwd_iat_max: float
+    bwd_iat_min: float
+
+    # Flags
+    fwd_psh_flags: int = Field(..., ge=0)
+    bwd_psh_flags: int = Field(..., ge=0)
+    fwd_urg_flags: int = Field(..., ge=0)
+    bwd_urg_flags: int = Field(..., ge=0)
+
+    # Header lengths
+    fwd_header_length: float = Field(..., ge=0)
+    bwd_header_length: float = Field(..., ge=0)
+
+    # Packet rates
+    fwd_packets_s: float = Field(..., alias='fwd_packets/s')
+    bwd_packets_s: float = Field(..., alias='bwd_packets/s')
+
+    # Packet length statistics
+    min_packet_length: float = Field(..., ge=0)
+    max_packet_length: float = Field(..., ge=0)
+    packet_length_mean: float = Field(..., ge=0)
+    packet_length_std: float = Field(..., ge=0)
+    packet_length_variance: float = Field(..., ge=0)
+
+    # Flag counts
+    fin_flag_count: int = Field(..., ge=0)
+    syn_flag_count: int = Field(..., ge=0)
+    rst_flag_count: int = Field(..., ge=0)
+    psh_flag_count: int = Field(..., ge=0)
+    ack_flag_count: int = Field(..., ge=0)
+    urg_flag_count: int = Field(..., ge=0)
+    cwe_flag_count: int = Field(..., ge=0)
+    ece_flag_count: int = Field(..., ge=0)
+
+    # Ratios and averages
+    down_up_ratio: float = Field(..., alias='down/up_ratio')
+    average_packet_size: float = Field(..., ge=0)
+    avg_fwd_segment_size: float = Field(..., ge=0)
+    avg_bwd_segment_size: float = Field(..., ge=0)
+
+    # Window and segment info
+    init_win_bytes_forward: int = Field(..., ge=0)
+    init_win_bytes_backward: int = Field(..., ge=0)
+    act_data_pkt_fwd: int = Field(..., ge=0)
+    min_seg_size_forward: int = Field(..., ge=0)
+
+    # Active/Idle statistics
+    active_mean: float = Field(..., ge=0)
+    active_std: float = Field(..., ge=0)
+    active_max: float = Field(..., ge=0)
+    active_min: float = Field(..., ge=0)
+    idle_mean: float = Field(..., ge=0)
+
     # Optional ground truth for evaluation
     true_label: Optional[ThreatLabel] = None
+
+    model_config = ConfigDict(populate_by_name=True)
     
     @validator('flow_duration')
     def validate_duration(cls, v):
@@ -89,12 +150,24 @@ class NetworkFlowEvent(BaseMessage):
         return v
     
     def to_feature_dict(self) -> Dict[str, float]:
-        """Convert to feature dictionary for model input."""
+        """Convert to feature dictionary for model input.
+
+        Converts field names to the format expected by the feature engineer
+        (Title_Case with underscores matching original CSV columns).
+        """
         exclude_fields = {'timestamp', 'correlation_id', 'true_label'}
-        return {
-            k: v for k, v in self.dict().items() 
-            if k not in exclude_fields and v is not None
-        }
+        # Use model_dump with by_alias=False to get field names, not aliases
+        data = self.model_dump(by_alias=False) if hasattr(self, 'model_dump') else self.dict()
+
+        # Convert snake_case field names to Title_Case
+        result = {}
+        for k, v in data.items():
+            if k not in exclude_fields and v is not None:
+                # Convert snake_case to Title_Case (e.g., destination_port -> Destination_Port)
+                title_case = '_'.join(word.capitalize() for word in k.split('_'))
+                result[title_case] = v
+
+        return result
 
 
 class PredictionEvent(BaseMessage):

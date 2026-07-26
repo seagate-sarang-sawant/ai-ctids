@@ -70,10 +70,18 @@ class Settings(BaseSettings):
     BATCH_SIZE: int = 32
     MAX_BATCH_SIZE: int = 1000
     INFERENCE_TIMEOUT_SECONDS: float = 30.0
-    
+
+    # Docker (optional)
+    DOCKER_USERNAME: Optional[str] = None
+    DOCKER_PASSWORD: Optional[str] = None
+
+    # API Keys (optional)
+    API_KEY: Optional[str] = None
+
     class Config:
         env_file = ".env"
         case_sensitive = True
+        extra = "ignore"  # Ignore extra fields from .env
     
     def __init__(self, **kwargs):
         super().__init__(**kwargs)

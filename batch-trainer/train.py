@@ -183,7 +183,6 @@ class ModelTrainer:
             class_weight='balanced',
             max_iter=500,
             solver='lbfgs',
-            multi_class='multinomial',
             n_jobs=-1
         )
 

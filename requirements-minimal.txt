@@ -1,0 +1,48 @@
+# ============================================================================
+# AI-CTIDS Minimal Production Requirements
+# ============================================================================
+# Lightweight installation for production inference-only deployments
+# Excludes: training, notebooks, development tools, visualization
+# ============================================================================
+
+# Core Dependencies
+numpy>=1.24.0,<3.0.0
+pandas>=2.0.0,<3.0.0
+scikit-learn>=1.3.0,<2.0.0
+xgboost>=2.0.0,<4.0.0
+tensorflow>=2.15.0,<3.0.0
+
+# Model Persistence
+joblib>=1.3.0,<2.0.0
+
+# Configuration & Validation
+pydantic>=2.0.0,<3.0.0
+pydantic-settings>=2.0.0,<3.0.0
+python-dotenv>=1.0.0,<2.0.0
+
+# API Framework (for inference-api service)
+fastapi>=0.109.0,<1.0.0
+uvicorn[standard]>=0.27.0,<1.0.0
+
+# Monitoring
+prometheus-client>=0.19.0,<1.0.0
+
+# Utilities
+requests>=2.31.0,<3.0.0
+
+# ============================================================================
+# Optional: Add streaming support
+# ============================================================================
+# Uncomment if deploying streaming-consumer or data-ingestion services:
+# confluent-kafka>=2.3.0,<3.0.0
+
+# ============================================================================
+# Notes
+# ============================================================================
+# This minimal setup is suitable for:
+# - Docker containers running inference-api
+# - Lightweight cloud deployments
+# - Edge devices with limited resources
+#
+# For full functionality, use requirements.txt instead
+# ============================================================================

@@ -1,19 +1,41 @@
 # AI-CTIDS Makefile for common development tasks
 
-.PHONY: help setup install train test lint format clean docker-build docker-up docker-down deploy
+.PHONY: help setup install install-dev install-minimal install-service train test lint format clean docker-build docker-up docker-down deploy test-api test-api-quick test-api-prepare test-api-full
 
 help:
 	@echo "AI-CTIDS Development Commands:"
-	@echo "  make setup         - Initial project setup"
-	@echo "  make install       - Install dependencies"
-	@echo "  make train         - Train models"
-	@echo "  make test          - Run tests"
-	@echo "  make lint          - Run linters"
-	@echo "  make format        - Format code"
-	@echo "  make docker-build  - Build Docker images"
-	@echo "  make docker-up     - Start all services"
-	@echo "  make docker-down   - Stop all services"
-	@echo "  make clean         - Clean generated files"
+	@echo ""
+	@echo "Setup & Installation:"
+	@echo "  make setup              - Initial project setup"
+	@echo "  make install            - Install all dependencies (from requirements.txt)"
+	@echo "  make install-dev        - Install development dependencies"
+	@echo "  make install-minimal    - Install minimal production dependencies"
+	@echo "  make install-service    - Install service-specific deps (use SERVICE=name)"
+	@echo ""
+	@echo "Development:"
+	@echo "  make train              - Train models"
+	@echo "  make test               - Run tests"
+	@echo "  make lint               - Run linters"
+	@echo "  make format             - Format code"
+	@echo "  make clean              - Clean generated files"
+	@echo ""
+	@echo "API Testing & Evaluation:"
+	@echo "  make test-api-quick     - Quick API test (health + sample predictions)"
+	@echo "  make test-api-prepare   - Prepare test datasets"
+	@echo "  make test-api           - Run API evaluation with test data"
+	@echo "  make test-api-full      - Run complete API evaluation suite"
+	@echo ""
+	@echo "Docker:"
+	@echo "  make docker-build       - Build Docker images"
+	@echo "  make docker-up          - Start all services"
+	@echo "  make docker-down        - Stop all services"
+	@echo "  make docker-logs        - View service logs"
+	@echo ""
+	@echo "Services:"
+	@echo "  make api-dev            - Start API in dev mode"
+	@echo "  make generate-data      - Generate/stream data"
+	@echo "  make monitor-drift      - Start drift monitor"
+	@echo "  make health-check       - Check service health"
 
 setup:
 	@echo "Setting up AI-CTIDS development environment..."
@@ -25,13 +47,28 @@ setup:
 
 install:
 	@echo "Installing dependencies..."
-	pip install -r batch-trainer/requirements.txt
-	pip install -r inference-api/requirements.txt
-	pip install -r streaming-consumer/requirements.txt
-	pip install -r data-ingestion/requirements.txt
-	pip install -r drift-monitor/requirements.txt
-	pip install pytest pytest-cov flake8 mypy black isort
-	@echo "✓ Dependencies installed"
+	pip install -r requirements.txt
+	@echo "✓ All dependencies installed"
+
+install-dev:
+	@echo "Installing development dependencies..."
+	pip install -r requirements-dev.txt
+	@echo "✓ Development dependencies installed"
+
+install-minimal:
+	@echo "Installing minimal production dependencies..."
+	pip install -r requirements-minimal.txt
+	@echo "✓ Minimal dependencies installed"
+
+install-service:
+	@echo "Installing service-specific dependencies..."
+	@echo "Usage: make install-service SERVICE=batch-trainer"
+	@if [ -z "$(SERVICE)" ]; then \
+		echo "Error: SERVICE variable not set"; \
+		exit 1; \
+	fi
+	pip install -r $(SERVICE)/requirements.txt
+	@echo "✓ $(SERVICE) dependencies installed"
 
 train:
 	@echo "Training models..."
@@ -128,5 +165,32 @@ health-check:
 	@curl -s http://localhost:9090/-/healthy || echo "❌ Prometheus down"
 	@curl -s http://localhost:3000/api/health || echo "❌ Grafana down"
 	@echo "✓ Health check complete"
+
+# API Testing & Evaluation
+test-api-quick:
+	@echo "Running quick API test..."
+	python3 tests/api_evaluation/quick_test.py
+
+test-api-prepare:
+	@echo "Preparing test datasets..."
+	python3 tests/api_evaluation/prepare_test_data.py \
+		--data-path ./data/cicids2017.csv \
+		--output-dir ./tests/api_evaluation/data \
+		--n-validation 1000 \
+		--n-test 1000
+	python3 tests/api_evaluation/generate_simulated_data.py \
+		--n-samples 500 \
+		--output ./tests/api_evaluation/data/simulated_flows.csv
+
+test-api:
+	@echo "Running API evaluation with validation set..."
+	python3 tests/api_evaluation/test_api.py \
+		--data-path ./tests/api_evaluation/data/validation_small.csv \
+		--batch-size 32 \
+		--output ./tests/api_evaluation/results_validation.json
+
+test-api-full:
+	@echo "Running complete API evaluation suite..."
+	python3 tests/api_evaluation/run_all_tests.py
 
 .DEFAULT_GOAL := help

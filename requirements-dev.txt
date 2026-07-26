@@ -1,0 +1,139 @@
+# ============================================================================
+# AI-CTIDS Development Dependencies
+# ============================================================================
+# Install with: pip install -r requirements-dev.txt
+# This includes all production dependencies plus development tools
+# ============================================================================
+
+# Include all production dependencies
+-r requirements.txt
+
+# ============================================================================
+# Additional Development Tools
+# ============================================================================
+
+# Advanced Testing
+pytest-xdist>=3.3.0  # Parallel test execution
+pytest-benchmark>=4.0.0  # Performance benchmarking
+pytest-mock>=3.11.0  # Mocking utilities
+coverage[toml]>=7.3.0  # Code coverage with TOML support
+missingno 
+
+# Debugging
+ipdb>=0.13.13  # IPython debugger
+pdbpp>=0.10.3  # Enhanced Python debugger
+
+# Code Analysis
+pylint>=3.0.0  # Comprehensive linting
+bandit>=1.7.5  # Security linter
+safety>=2.3.5  # Dependency vulnerability scanner
+
+# Documentation Building
+sphinx>=7.0.0  # Documentation generator
+sphinx-rtd-theme>=1.3.0  # ReadTheDocs theme
+sphinx-autodoc-typehints>=1.24.0  # Type hints in docs
+
+# Performance Profiling
+memory-profiler>=0.61.0  # Memory usage profiling
+line-profiler>=4.1.0  # Line-by-line profiling
+py-spy>=0.3.14  # Sampling profiler
+
+# Notebook Development
+nbconvert>=7.8.0  # Convert notebooks to other formats
+nbformat>=5.9.0  # Notebook file format
+jupytext>=1.15.0  # Sync notebooks with scripts
+
+# API Development
+httpie>=3.2.0  # CLI HTTP client for API testing
+locust>=2.15.0  # Load testing
+
+# Database Tools (if needed)
+sqlalchemy>=2.0.0  # ORM for database interactions
+alembic>=1.12.0  # Database migrations
+
+# Workflow Automation
+invoke>=2.2.0  # Task execution library
+nox>=2023.4.22  # Test automation across Python versions
+
+# Container Development
+docker>=6.1.0  # Docker SDK for Python
+docker-compose>=1.29.0  # Programmatic docker-compose
+
+# Git Hooks & Automation
+commitizen>=3.10.0  # Standardized commit messages
+python-semantic-release>=8.0.0  # Automated versioning
+
+# Environment Management
+conda>=23.7.0  # Conda package manager (optional)
+virtualenv>=20.24.0  # Virtual environment tool
+
+# Data Validation & Quality
+great-expectations>=0.17.0  # Data validation framework (optional)
+pandera>=0.17.0  # DataFrame validation
+
+# Visualization Development
+plotly>=5.17.0  # Interactive plots
+dash>=2.14.0  # Dashboard framework (optional)
+
+# Performance Monitoring
+psutil>=5.9.0  # System and process utilities
+py-cpuinfo>=9.0.0  # CPU information
+
+# ============================================================================
+# Platform-Specific Development Tools
+# ============================================================================
+
+# macOS
+# py-applescript>=1.0.3  # AppleScript integration (macOS only)
+
+# Linux
+# python-daemon>=3.0.0  # Daemon process support
+
+# Windows
+# pywin32>=306  # Windows-specific utilities (Windows only)
+
+# ============================================================================
+# Optional ML Development Tools
+# ============================================================================
+
+# Hyperparameter Tuning
+optuna>=3.3.0  # Hyperparameter optimization
+hyperopt>=0.2.7  # Distributed hyperparameter optimization
+
+# Model Versioning
+dvc>=3.30.0  # Data version control
+mlflow>=2.8.0  # ML lifecycle management (alternative to wandb)
+
+# Advanced Visualization
+yellowbrick>=1.5  # ML visualization
+dtreeviz>=2.2.0  # Decision tree visualization
+
+# Data Augmentation
+imbalanced-learn>=0.11.0  # Handle imbalanced datasets
+faker>=19.12.0  # Generate fake data for testing
+
+# ============================================================================
+# AI/ML Research Tools
+# ============================================================================
+
+# Model Interpretation (beyond SHAP)
+lime>=0.2.0  # Local Interpretable Model-agnostic Explanations
+eli5>=0.13.0  # Model debugging
+alibi>=0.9.0  # Advanced model explanations
+
+# Fairness & Bias Detection
+fairlearn>=0.9.0  # Fairness in ML
+aif360>=0.5.0  # AI Fairness 360
+
+# ============================================================================
+# Notes
+# ============================================================================
+# To install:
+#   pip install -r requirements-dev.txt
+#
+# For minimal development setup:
+#   pip install -r requirements.txt pytest black flake8 mypy
+#
+# For documentation building:
+#   pip install -r requirements.txt sphinx sphinx-rtd-theme
+# ============================================================================

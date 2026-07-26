@@ -49,39 +49,64 @@ ai-ctids/
 
 ### Prerequisites
 - Docker & Docker Compose
-- Python 3.10+
+- Python 3.9+ (3.10 recommended)
 - Weights & Biases account (for training)
+
+### 📦 Requirements Files
+
+| File | Purpose | Size | Install Command |
+|------|---------|------|-----------------|
+| `requirements.txt` | **Complete installation** | All deps | `pip install -r requirements.txt` |
+| `requirements-minimal.txt` | **Production-only** | Inference API | `pip install -r requirements-minimal.txt` |
+| `requirements-dev.txt` | **Development tools** | Testing, linting | `pip install -r requirements-dev.txt` |
+| `*/requirements.txt` | **Service-specific** | Individual services | `pip install -r service/requirements.txt` |
+
+See [Requirements Guide](docs/REQUIREMENTS_GUIDE.md) for detailed information.
 
 ### Local Development Setup
 
-1. **Clone and setup environment**
+**Option 1: Quick Install (Recommended)**
 ```bash
+git clone <repository-url>
+cd ai-ctids
+./install.sh full  # or 'dev' for development tools, 'minimal' for production
+source venv/bin/activate
+```
+
+**Option 2: Manual Setup**
+```bash
+# 1. Clone and create environment
 git clone <repository-url>
 cd ai-ctids
 python -m venv venv
 source venv/bin/activate  # On Windows: venv\Scripts\activate
+
+# 2. Install dependencies
+pip install -r requirements.txt  # Full installation
+# OR
+pip install -r requirements-minimal.txt  # Production-only
+# OR
+pip install -r requirements-dev.txt  # With development tools
+
+# 3. Using Makefile (alternative)
+make setup    # Create venv and directories
+make install  # Install all dependencies
 ```
 
-2. **Install dependencies**
+**Start Services**
 ```bash
-pip install -r requirements.txt
-```
-
-3. **Start infrastructure**
-```bash
+# Start infrastructure
 docker-compose up -d kafka zookeeper prometheus grafana
-```
 
-4. **Train models**
-```bash
-cd batch-trainer
-python train.py --data-path ../data/cicids2017.csv --wandb-project ai-ctids
-```
+# Train models
+make train
+# OR
+cd batch-trainer && python train.py --data-path ../data/cicids2017.csv
 
-5. **Start API server**
-```bash
-cd inference-api
-uvicorn main:app --reload
+# Start API server
+make api-dev
+# OR
+cd inference-api && uvicorn main:app --reload
 ```
 
 ## 📊 Models
@@ -196,10 +221,14 @@ MIT License - See LICENSE file for details
 
 ## 📚 Documentation
 
+### Core Guides
+- [Requirements Guide](docs/REQUIREMENTS_GUIDE.md) - **⭐ START HERE** - Dependency management
 - [API Documentation](docs/API.md) - REST API reference with examples
 - [Deployment Guide](docs/DEPLOYMENT.md) - Local, K8s, and cloud deployment
 - [Architecture](docs/ARCHITECTURE.md) - System design and components
 - [Project Summary](docs/PROJECT_SUMMARY.md) - Complete feature list
+
+### Development
 - [Contributing](CONTRIBUTING.md) - Development guidelines
 - [Pandas vs NumPy Quick Reference](docs/QUICK_REFERENCE_PANDAS_VS_NUMPY.md) - Aggregation behavior guide
 - [Why .sum().sum()?](docs/PANDAS_SUM_EXPLAINED.md) - Detailed explanation with examples
