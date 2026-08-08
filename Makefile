@@ -71,11 +71,35 @@ install-service:
 	@echo "✓ $(SERVICE) dependencies installed"
 
 train:
-	@echo "Training models..."
+	@echo "Training all 7 models (4 ML + 3 DL)..."
+	cd batch-trainer && python train.py \
+		--data-path ../data/cicids2017.csv \
+		--output-dir ../models
+	@echo "✓ All models trained successfully!"
+
+train-quick:
+	@echo "Training quick models (Decision Tree, Random Forest, Logistic Regression)..."
 	cd batch-trainer && python train.py \
 		--data-path ../data/cicids2017.csv \
 		--output-dir ../models \
-		--models logistic_regression xgboost ann
+		--models decision_tree random_forest logistic_regression
+	@echo "✓ Quick models trained!"
+
+train-ml:
+	@echo "Training all ML models (4 models)..."
+	cd batch-trainer && python train.py \
+		--data-path ../data/cicids2017.csv \
+		--output-dir ../models \
+		--models logistic_regression decision_tree random_forest xgboost
+	@echo "✓ ML models trained!"
+
+train-dl:
+	@echo "Training all DL models (3 models)..."
+	cd batch-trainer && python train.py \
+		--data-path ../data/cicids2017.csv \
+		--output-dir ../models \
+		--models ann 1dcnn lstm
+	@echo "✓ DL models trained!"
 
 evaluate:
 	@echo "Evaluating models..."

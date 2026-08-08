@@ -39,12 +39,12 @@ data/*.csv
 data/*.parquet
 !data/.gitkeep
 
-# Models
-models/*.pkl
-models/*.keras
-models/*.h5
-models/*.pb
-!models/.gitkeep
+# # Models
+# models/*.pkl
+# models/*.keras
+# models/*.h5
+# models/*.pb
+# !models/.gitkeep
 
 # Logs
 logs/
@@ -57,8 +57,8 @@ htmlcov/
 .tox/
 
 # Jupyter
-.ipynb_checkpoints
-*.ipynb
+# .ipynb_checkpoints
+# *.ipynb
 
 # Environment
 .env

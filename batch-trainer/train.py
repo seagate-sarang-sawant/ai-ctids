@@ -1,6 +1,10 @@
-"""Training pipeline with W&B tracking for Logistic Regression, XGBoost, and ANN.
+"""Training pipeline with W&B tracking for all 7 models.
 
-Based on AI_Powered_Cyber_Threat_Detection_and_intrusion_detection.ipynb
+Models:
+- Machine Learning: Logistic Regression, Decision Tree, Random Forest, XGBoost
+- Deep Learning: ANN, 1D-CNN, LSTM
+
+Based on AAI590_Group_1_Capstone_Project_AI_CTIDS.ipynb
 """
 
 import os
@@ -20,6 +24,7 @@ import wandb
 # Scikit-learn
 from sklearn.model_selection import train_test_split, RandomizedSearchCV
 from sklearn.linear_model import LogisticRegression
+from sklearn.tree import DecisionTreeClassifier
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.metrics import (
     accuracy_score, precision_score, recall_score, f1_score,
@@ -32,7 +37,11 @@ from xgboost import XGBClassifier
 # TensorFlow/Keras
 import tensorflow as tf
 from tensorflow.keras.models import Sequential
-from tensorflow.keras.layers import Dense, Dropout, BatchNormalization, Input
+from tensorflow.keras.layers import (
+    Dense, Dropout, BatchNormalization, Input,
+    LSTM, Conv1D, MaxPooling1D, Flatten, Reshape, GlobalAveragePooling1D
+)
+from tensorflow.keras.callbacks import EarlyStopping, ReduceLROnPlateau
 from tensorflow.keras.callbacks import EarlyStopping
 
 # Add parent directory to path for imports
@@ -203,6 +212,94 @@ class ModelTrainer:
 
         if self.use_wandb:
             wandb.log_model(path=str(model_path), name="logistic_regression")
+
+        return model, metrics
+
+    def train_decision_tree(self):
+        """Train Decision Tree classifier - Best Overall Model (F1: 85.30%)."""
+        logger.info("\n" + "="*80)
+        logger.info("Training Decision Tree")
+        logger.info("="*80)
+
+        start_time = time.time()
+
+        model = DecisionTreeClassifier(
+            criterion='gini',
+            class_weight='balanced',
+            random_state=SEED
+        )
+
+        model.fit(self.X_train, self.y_train)
+        training_time = time.time() - start_time
+
+        # Predictions
+        y_pred = model.predict(self.X_test)
+        y_proba = model.predict_proba(self.X_test)
+
+        # Log metrics
+        metrics = self.log_metrics("decision_tree", self.y_test, y_pred, y_proba, training_time)
+
+        # Save model
+        model_path = self.output_dir / "decision_tree.pkl"
+        joblib.dump(model, model_path)
+        logger.info(f"Saved model to {model_path}")
+
+        if self.use_wandb:
+            wandb.log_model(path=str(model_path), name="decision_tree")
+
+            # Log feature importance
+            if hasattr(model, 'feature_importances_'):
+                importance_df = pd.DataFrame({
+                    'feature': self.feature_engineer.selected_features,
+                    'importance': model.feature_importances_
+                }).sort_values('importance', ascending=False)
+
+                wandb.log({"decision_tree/feature_importance": wandb.Table(dataframe=importance_df.head(20))})
+
+        return model, metrics
+
+    def train_random_forest(self):
+        """Train Random Forest classifier - Highest Precision (85.30%)."""
+        logger.info("\n" + "="*80)
+        logger.info("Training Random Forest")
+        logger.info("="*80)
+
+        start_time = time.time()
+
+        model = RandomForestClassifier(
+            n_estimators=100,
+            criterion='gini',
+            max_features='sqrt',
+            class_weight='balanced',
+            n_jobs=-1,
+            random_state=SEED
+        )
+
+        model.fit(self.X_train, self.y_train)
+        training_time = time.time() - start_time
+
+        # Predictions
+        y_pred = model.predict(self.X_test)
+        y_proba = model.predict_proba(self.X_test)
+
+        # Log metrics
+        metrics = self.log_metrics("random_forest", self.y_test, y_pred, y_proba, training_time)
+
+        # Save model
+        model_path = self.output_dir / "random_forest.pkl"
+        joblib.dump(model, model_path)
+        logger.info(f"Saved model to {model_path}")
+
+        if self.use_wandb:
+            wandb.log_model(path=str(model_path), name="random_forest")
+
+            # Log feature importance
+            importance_df = pd.DataFrame({
+                'feature': self.feature_engineer.selected_features,
+                'importance': model.feature_importances_
+            }).sort_values('importance', ascending=False)
+
+            wandb.log({"random_forest/feature_importance": wandb.Table(dataframe=importance_df.head(20))})
 
         return model, metrics
 
@@ -378,31 +475,221 @@ class ModelTrainer:
 
         return model, metrics
 
-    def run(self, models_to_train: list = None):
-        """Run complete training pipeline."""
-        if models_to_train is None:
-            models_to_train = ["logistic_regression", "xgboost", "ann"]
+    def train_1dcnn(self):
+        """Train 1D Convolutional Neural Network."""
+        logger.info("\n" + "="*80)
+        logger.info("Training 1D-CNN")
+        logger.info("="*80)
 
-        logger.info("Starting training pipeline")
+        n_features = self.X_train.shape[1]
+        n_classes = len(np.unique(self.y_train))
+
+        # Build model
+        model = Sequential([
+            Input(shape=(n_features,)),
+            Reshape((n_features, 1)),  # Reshape for Conv1D: (batch, steps, features)
+            Conv1D(64, kernel_size=3, activation='relu', padding='same'),
+            BatchNormalization(),
+            MaxPooling1D(pool_size=2),
+            Conv1D(32, kernel_size=3, activation='relu', padding='same'),
+            BatchNormalization(),
+            GlobalAveragePooling1D(),
+            Dense(32, activation='relu'),
+            Dropout(0.5),
+            Dense(n_classes, activation='softmax')
+        ])
+
+        model.compile(
+            optimizer='adam',
+            loss='sparse_categorical_crossentropy',
+            metrics=['accuracy']
+        )
+
+        # Callbacks
+        early_stop = EarlyStopping(
+            monitor='val_loss',
+            patience=5,
+            restore_best_weights=True
+        )
+
+        reduce_lr = ReduceLROnPlateau(
+            monitor='val_loss',
+            factor=0.5,
+            patience=3,
+            min_lr=1e-6
+        )
+
+        # Train
+        start_time = time.time()
+        history = model.fit(
+            self.X_train, self.y_train,
+            validation_data=(self.X_val, self.y_val),
+            epochs=30,
+            batch_size=1024,
+            callbacks=[early_stop, reduce_lr],
+            verbose=1
+        )
+        training_time = time.time() - start_time
+
+        # Predictions
+        y_proba = model.predict(self.X_test)
+        y_pred = np.argmax(y_proba, axis=1)
+
+        # Log metrics
+        metrics = self.log_metrics("1dcnn", self.y_test, y_pred, y_proba, training_time)
+
+        # Save model
+        model_path = self.output_dir / "1dcnn_model.keras"
+        model.save(model_path)
+        logger.info(f"Saved model to {model_path}")
+
+        if self.use_wandb:
+            wandb.log_model(path=str(model_path), name="1dcnn")
+
+            # Log training history
+            for epoch, (loss, acc, val_loss, val_acc) in enumerate(zip(
+                history.history['loss'],
+                history.history['accuracy'],
+                history.history['val_loss'],
+                history.history['val_accuracy']
+            )):
+                wandb.log({
+                    "1dcnn/epoch": epoch,
+                    "1dcnn/train_loss": loss,
+                    "1dcnn/train_accuracy": acc,
+                    "1dcnn/val_loss": val_loss,
+                    "1dcnn/val_accuracy": val_acc
+                })
+
+        return model, metrics
+
+    def train_lstm(self):
+        """Train Long Short-Term Memory network."""
+        logger.info("\n" + "="*80)
+        logger.info("Training LSTM")
+        logger.info("="*80)
+
+        n_features = self.X_train.shape[1]
+        n_classes = len(np.unique(self.y_train))
+
+        # Build model
+        model = Sequential([
+            Input(shape=(n_features,)),
+            Reshape((n_features, 1)),  # Reshape for LSTM: (batch, timesteps, features)
+            LSTM(64, return_sequences=True),
+            BatchNormalization(),
+            Dropout(0.3),
+            LSTM(32),
+            BatchNormalization(),
+            Dropout(0.3),
+            Dense(32, activation='relu'),
+            Dense(n_classes, activation='softmax')
+        ])
+
+        model.compile(
+            optimizer='adam',
+            loss='sparse_categorical_crossentropy',
+            metrics=['accuracy']
+        )
+
+        # Early stopping
+        early_stop = EarlyStopping(
+            monitor='val_loss',
+            patience=5,
+            restore_best_weights=True
+        )
+
+        # Train
+        start_time = time.time()
+        history = model.fit(
+            self.X_train, self.y_train,
+            validation_data=(self.X_val, self.y_val),
+            epochs=30,
+            batch_size=512,  # Smaller batch for LSTM
+            callbacks=[early_stop],
+            verbose=1
+        )
+        training_time = time.time() - start_time
+
+        # Predictions
+        y_proba = model.predict(self.X_test)
+        y_pred = np.argmax(y_proba, axis=1)
+
+        # Log metrics
+        metrics = self.log_metrics("lstm", self.y_test, y_pred, y_proba, training_time)
+
+        # Save model
+        model_path = self.output_dir / "lstm_model.keras"
+        model.save(model_path)
+        logger.info(f"Saved model to {model_path}")
+
+        if self.use_wandb:
+            wandb.log_model(path=str(model_path), name="lstm")
+
+            # Log training history
+            for epoch, (loss, acc, val_loss, val_acc) in enumerate(zip(
+                history.history['loss'],
+                history.history['accuracy'],
+                history.history['val_loss'],
+                history.history['val_accuracy']
+            )):
+                wandb.log({
+                    "lstm/epoch": epoch,
+                    "lstm/train_loss": loss,
+                    "lstm/train_accuracy": acc,
+                    "lstm/val_loss": val_loss,
+                    "lstm/val_accuracy": val_acc
+                })
+
+        return model, metrics
+
+    def run(self, models_to_train: list = None):
+        """Run complete training pipeline for all 7 models."""
+        if models_to_train is None:
+            # Train all models by default
+            models_to_train = [
+                "logistic_regression", "decision_tree", "random_forest", "xgboost",
+                "ann", "1dcnn", "lstm"
+            ]
+
+        logger.info(f"Starting training pipeline for {len(models_to_train)} models")
         self.load_and_preprocess_data()
 
         results = {}
 
+        # Machine Learning Models
         if "logistic_regression" in models_to_train:
             lr_model, lr_metrics = self.train_logistic_regression()
             results["logistic_regression"] = {"model": lr_model, "metrics": lr_metrics}
+
+        if "decision_tree" in models_to_train:
+            dt_model, dt_metrics = self.train_decision_tree()
+            results["decision_tree"] = {"model": dt_model, "metrics": dt_metrics}
+
+        if "random_forest" in models_to_train:
+            rf_model, rf_metrics = self.train_random_forest()
+            results["random_forest"] = {"model": rf_model, "metrics": rf_metrics}
 
         if "xgboost" in models_to_train:
             xgb_model, xgb_metrics = self.train_xgboost(tune_hyperparameters=False)
             results["xgboost"] = {"model": xgb_model, "metrics": xgb_metrics}
 
+        # Deep Learning Models
         if "ann" in models_to_train:
             ann_model, ann_metrics = self.train_ann()
             results["ann"] = {"model": ann_model, "metrics": ann_metrics}
 
+        if "1dcnn" in models_to_train:
+            cnn_model, cnn_metrics = self.train_1dcnn()
+            results["1dcnn"] = {"model": cnn_model, "metrics": cnn_metrics}
+
+        if "lstm" in models_to_train:
+            lstm_model, lstm_metrics = self.train_lstm()
+            results["lstm"] = {"model": lstm_model, "metrics": lstm_metrics}
+
         # Compare models
         logger.info("\n" + "="*80)
-        logger.info("Model Comparison")
+        logger.info("MODEL COMPARISON - ALL 7 MODELS")
         logger.info("="*80)
 
         comparison_df = pd.DataFrame({
@@ -410,23 +697,46 @@ class ModelTrainer:
             for name, data in results.items()
         }).T
 
+        # Sort by F1-score (primary metric for imbalanced classification)
+        if 'f1_macro' in comparison_df.columns:
+            comparison_df = comparison_df.sort_values('f1_macro', ascending=False)
+
         logger.info(f"\n{comparison_df}")
+
+        # Identify best models
+        if len(results) > 0:
+            best_f1_model = comparison_df['f1_macro'].idxmax()
+            best_acc_model = comparison_df['accuracy'].idxmax()
+
+            logger.info("\n" + "="*80)
+            logger.info("BEST MODELS")
+            logger.info("="*80)
+            logger.info(f"Best F1-Score: {best_f1_model} ({comparison_df.loc[best_f1_model, 'f1_macro']:.4f})")
+            logger.info(f"Best Accuracy: {best_acc_model} ({comparison_df.loc[best_acc_model, 'accuracy']:.4f})")
 
         if self.use_wandb:
             wandb.log({"model_comparison": wandb.Table(dataframe=comparison_df)})
             wandb.finish()
 
-        logger.info("\nTraining pipeline completed successfully!")
+        logger.info("\n" + "="*80)
+        logger.info("Training pipeline completed successfully!")
+        logger.info(f"All {len(results)} models trained and evaluated")
+        logger.info("="*80)
+
         return results
 
 
 def main():
     """Main training entry point."""
-    parser = argparse.ArgumentParser(description="Train AI-CTIDS models")
+    parser = argparse.ArgumentParser(description="Train AI-CTIDS models (7 models: 4 ML + 3 DL)")
     parser.add_argument("--data-path", type=str, required=True, help="Path to CICIDS2017 CSV")
     parser.add_argument("--output-dir", type=str, default="./models", help="Output directory for models")
-    parser.add_argument("--models", nargs="+", default=["logistic_regression", "xgboost", "ann"],
-                       choices=["logistic_regression", "xgboost", "ann"], help="Models to train")
+    parser.add_argument(
+        "--models", nargs="+",
+        default=["logistic_regression", "decision_tree", "random_forest", "xgboost", "ann", "1dcnn", "lstm"],
+        choices=["logistic_regression", "decision_tree", "random_forest", "xgboost", "ann", "1dcnn", "lstm"],
+        help="Models to train (default: all 7 models)"
+    )
     parser.add_argument("--no-wandb", action="store_true", help="Disable W&B tracking")
 
     args = parser.parse_args()

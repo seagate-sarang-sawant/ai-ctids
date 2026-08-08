@@ -1,0 +1,146 @@
+[
+  {
+    "id": 1,
+    "filename": "chart_001.png",
+    "filepath": "docs/charts/chart_001.png",
+    "cell_index": 47,
+    "title": "====================================================================================================",
+    "context": "# ==============================================================================\n# STEP 3.15 : DISTRIBUTION OF NETWORK TRAFFIC CLASSES\n# ==============================================================="
+  },
+  {
+    "id": 2,
+    "filename": "chart_002.png",
+    "filepath": "docs/charts/chart_002.png",
+    "cell_index": 49,
+    "title": "====================================================================================================",
+    "context": "# ==============================================================================\n# STEP 3.16 : DISTRIBUTION OF NETWORK TRAFFIC CLASSES (LOG SCALE)\n# ==================================================="
+  },
+  {
+    "id": 3,
+    "filename": "chart_003.png",
+    "filepath": "docs/charts/chart_003.png",
+    "cell_index": 52,
+    "title": "====================================================================================================",
+    "context": "# ==============================================================================\n# STEP 3.17 : PERCENTAGE DISTRIBUTION OF NETWORK TRAFFIC CLASSES\n# ===================================================="
+  },
+  {
+    "id": 4,
+    "filename": "chart_004.png",
+    "filepath": "docs/charts/chart_004.png",
+    "cell_index": 55,
+    "title": "",
+    "context": "# ==============================================================================\n# STEP 3.18 : MISSING VALUE ANALYSIS\n# =============================================================================="
+  },
+  {
+    "id": 5,
+    "filename": "chart_005.png",
+    "filepath": "docs/charts/chart_005.png",
+    "cell_index": 58,
+    "title": "",
+    "context": "# ==============================================================================\n# STEP 3.19 : INFINITE VALUE ANALYSIS\n# =============================================================================="
+  },
+  {
+    "id": 6,
+    "filename": "chart_006.png",
+    "filepath": "docs/charts/chart_006.png",
+    "cell_index": 122,
+    "title": "Chart 6",
+    "context": "# ==============================================================================\n# STEP 7.3 : LOGISTIC REGRESSION BASELINE MODEL\n# Memory-Optimized Final Version\n# ===================================="
+  },
+  {
+    "id": 7,
+    "filename": "chart_007.png",
+    "filepath": "docs/charts/chart_007.png",
+    "cell_index": 124,
+    "title": "Chart 7",
+    "context": "# ==============================================================================\n# STEP 7.4 : DECISION TREE CLASSIFIER\n# Optimized Final Version\n# ====================================================="
+  },
+  {
+    "id": 8,
+    "filename": "chart_008.png",
+    "filepath": "docs/charts/chart_008.png",
+    "cell_index": 126,
+    "title": "Chart 8",
+    "context": "# ==============================================================================\n# STEP 7.5 : RANDOM FOREST CLASSIFIER\n# Optimized Final Version\n# ====================================================="
+  },
+  {
+    "id": 9,
+    "filename": "chart_009.png",
+    "filepath": "docs/charts/chart_009.png",
+    "cell_index": 128,
+    "title": "Chart 9",
+    "context": "# ==============================================================================\n# STEP 7.6 : XGBOOST CLASSIFIER\n# Optimized Final Version\n# ==========================================================="
+  },
+  {
+    "id": 10,
+    "filename": "chart_010.png",
+    "filepath": "docs/charts/chart_010.png",
+    "cell_index": 142,
+    "title": "",
+    "context": "# ==============================================================================\n# STEP 8.3 : ARTIFICIAL NEURAL NETWORK (ANN)\n# Memory-Optimized Final Version\n# ======================================="
+  },
+  {
+    "id": 11,
+    "filename": "chart_011.png",
+    "filepath": "docs/charts/chart_011.png",
+    "cell_index": 142,
+    "title": "",
+    "context": "# ==============================================================================\n# STEP 8.3 : ARTIFICIAL NEURAL NETWORK (ANN)\n# Memory-Optimized Final Version\n# ======================================="
+  },
+  {
+    "id": 12,
+    "filename": "chart_012.png",
+    "filepath": "docs/charts/chart_012.png",
+    "cell_index": 144,
+    "title": "",
+    "context": "# ==============================================================================\n# STEP 8.4 : ONE-DIMENSIONAL CONVOLUTIONAL NEURAL NETWORK (1D-CNN)\n# Memory-Optimized Final Version\n# ================="
+  },
+  {
+    "id": 13,
+    "filename": "chart_013.png",
+    "filepath": "docs/charts/chart_013.png",
+    "cell_index": 144,
+    "title": "",
+    "context": "# ==============================================================================\n# STEP 8.4 : ONE-DIMENSIONAL CONVOLUTIONAL NEURAL NETWORK (1D-CNN)\n# Memory-Optimized Final Version\n# ================="
+  },
+  {
+    "id": 14,
+    "filename": "chart_014.png",
+    "filepath": "docs/charts/chart_014.png",
+    "cell_index": 146,
+    "title": "",
+    "context": "# ==============================================================================\n# STEP 8.5 : LONG SHORT-TERM MEMORY (LSTM)\n# Memory-Optimized Final Version\n# ========================================="
+  },
+  {
+    "id": 15,
+    "filename": "chart_015.png",
+    "filepath": "docs/charts/chart_015.png",
+    "cell_index": 146,
+    "title": "",
+    "context": "# ==============================================================================\n# STEP 8.5 : LONG SHORT-TERM MEMORY (LSTM)\n# Memory-Optimized Final Version\n# ========================================="
+  },
+  {
+    "id": 16,
+    "filename": "chart_016.png",
+    "filepath": "docs/charts/chart_016.png",
+    "cell_index": 168,
+    "title": "",
+    "context": "# ==============================================================================\n# STEP 10.2 : SHAP GLOBAL EXPLAINABILITY\n#              (Decision Tree)\n# ============================================="
+  },
+  {
+    "id": 17,
+    "filename": "chart_017.png",
+    "filepath": "docs/charts/chart_017.png",
+    "cell_index": 169,
+    "title": "",
+    "context": "# ==============================================================================\n# STEP 10.3 : SHAP LOCAL PREDICTION EXPLANATION\n#               (Decision Tree)\n# ====================================="
+  },
+  {
+    "id": 18,
+    "filename": "chart_018.png",
+    "filepath": "docs/charts/chart_018.png",
+    "cell_index": 171,
+    "title": "Chart 18",
+    "context": "# ==============================================================================\n# STEP 10.4 : LIME LOCAL PREDICTION EXPLANATION\n#              (Decision Tree)\n# Optimized Final Version\n# ============"
+  }
+]

@@ -109,12 +109,50 @@ make api-dev
 cd inference-api && uvicorn main:app --reload
 ```
 
-## 📊 Models
+## 📊 Models & Performance Results
 
-Three models trained on CICIDS2017 dataset:
-- **Logistic Regression** - Baseline model
-- **XGBoost** - Best performing model (deployed)
-- **ANN (Keras)** - Deep learning alternative
+**Seven models** comprehensively evaluated on CICIDS2017 dataset:
+
+### Machine Learning Models (4)
+1. **Decision Tree** - 🏆 **Best Overall** (F1: 85.30%, Acc: 99.74%) - **DEPLOYED**
+2. **Random Forest** - Highest Precision (85.30%, ROC-AUC: 99.96%)
+3. **XGBoost** - Highest Accuracy (99.88%, ROC-AUC: 99.99%)
+4. **Logistic Regression** - Baseline (F1: 27.57%)
+
+### Deep Learning Models (3)
+5. **Artificial Neural Network (ANN)** - Best DL Model (F1: 63.81%, Acc: 99.56%)
+6. **LSTM** - Temporal Pattern Learning (F1: 60.39%, Acc: 98.24%)
+7. **1D-CNN** - Spatial Pattern Learning (F1: 42.73%, Acc: 95.20%)
+
+### 🏆 Selected Production Model: **Decision Tree**
+
+**Why Decision Tree?**
+- ✅ Highest F1-Score (85.30%) - Best balanced performance across all 15 attack classes
+- ✅ Excellent Recall (90.98%) - Catches 91% of attacks (critical for security)
+- ✅ Fastest Inference (0.09 sec) - Real-time detection capability
+- ✅ Interpretable - Explainable decisions for security analysts
+- ✅ Production-ready with 99.74% accuracy on unseen data
+
+### 📊 Quick Performance Comparison
+
+| Model | F1-Score | Accuracy | Inference Time | Category |
+|-------|----------|----------|----------------|----------|
+| **Decision Tree** 🏆 | **85.30%** | **99.74%** | **0.09 sec** | ML |
+| Random Forest | 79.31% | 99.17% | 5.47 sec | ML |
+| XGBoost | 76.28% | 99.88% | 36.71 sec | ML |
+| ANN | 63.81% | 99.56% | 28.08 sec | DL |
+| LSTM | 60.39% | 98.24% | 106.27 sec | DL |
+| 1D-CNN | 42.73% | 95.20% | 49.55 sec | DL |
+| Logistic Regression | 27.57% | 66.07% | 0.14 sec | ML |
+
+**📚 Comprehensive Results**: See [MODEL_RESULTS.md](docs/MODEL_RESULTS.md) for:
+- Complete performance metrics and analysis
+- Feature importance rankings
+- Model architecture details
+- Computational performance benchmarks
+- Explainable AI (SHAP/LIME) insights
+- Attack detection performance by class
+- Production deployment recommendations
 
 ## 🔧 Tech Stack
 
@@ -188,9 +226,11 @@ MIT License - See LICENSE file for details
 
 ### Production-Ready ML Pipeline
 ✅ Complete end-to-end pipeline from training to deployment
-✅ Three models: Logistic Regression, XGBoost (primary), and ANN
+✅ **Seven models** comprehensively evaluated: 4 ML + 3 Deep Learning
+✅ **Decision Tree** selected as production model (F1: 85.30%, 99.74% accuracy)
 ✅ Batch and real-time inference support
-✅ Comprehensive feature engineering (63 features from CICIDS2017)
+✅ Comprehensive feature engineering (69 features from CICIDS2017)
+✅ Explainable AI with SHAP and LIME for model interpretability
 
 ### Deployment & Scalability
 ✅ Docker containerization for all services
@@ -282,14 +322,17 @@ ai-ctids/
 ## 🚦 System Status
 
 All core components implemented and tested:
-- ✅ Batch training pipeline with 3 models
+- ✅ **Batch training pipeline with 7 models** (4 ML + 3 DL)
+- ✅ **Model evaluation & comparison** with comprehensive metrics
+- ✅ **Decision Tree deployed** as production model (85.30% F1-score)
 - ✅ REST API for inference
 - ✅ Kafka streaming consumer
 - ✅ Real-time drift monitoring
-- ✅ Complete observability stack
-- ✅ Automated CI/CD pipeline
-- ✅ Docker containerization
-- ✅ Comprehensive documentation
+- ✅ Complete observability stack (Prometheus + Grafana)
+- ✅ Automated CI/CD pipeline with GitHub Actions
+- ✅ Docker containerization for all services
+- ✅ **Explainable AI** (SHAP + LIME) for model transparency
+- ✅ Comprehensive documentation with [detailed results](docs/MODEL_RESULTS.md)
 
 ## 🤝 Contributing
 

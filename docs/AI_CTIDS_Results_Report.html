@@ -1,0 +1,680 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI-CTIDS Model Performance Results - Complete Report</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+            overflow: hidden;
+        }
+
+        header {
+            background: linear-gradient(135deg, #2c3e50 0%, #3498db 100%);
+            color: white;
+            padding: 40px;
+            text-align: center;
+        }
+
+        header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+
+        header p {
+            font-size: 1.2em;
+            opacity: 0.9;
+        }
+
+        .badge {
+            display: inline-block;
+            padding: 5px 15px;
+            background: #27ae60;
+            color: white;
+            border-radius: 20px;
+            font-size: 0.9em;
+            margin: 10px 5px;
+        }
+
+        .content {
+            padding: 40px;
+        }
+
+        h2 {
+            color: #2c3e50;
+            border-bottom: 3px solid #3498db;
+            padding-bottom: 10px;
+            margin: 30px 0 20px 0;
+            font-size: 2em;
+        }
+
+        h3 {
+            color: #34495e;
+            margin: 25px 0 15px 0;
+            font-size: 1.5em;
+        }
+
+        h4 {
+            color: #7f8c8d;
+            margin: 20px 0 10px 0;
+            font-size: 1.2em;
+        }
+
+        .summary-box {
+            background: #ecf0f1;
+            border-left: 5px solid #3498db;
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 5px;
+        }
+
+        .highlight {
+            background: #fff3cd;
+            border-left: 5px solid #ffc107;
+            padding: 15px;
+            margin: 15px 0;
+            border-radius: 5px;
+        }
+
+        .success {
+            background: #d4edda;
+            border-left: 5px solid #28a745;
+            padding: 15px;
+            margin: 15px 0;
+            border-radius: 5px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+
+        th {
+            background: #3498db;
+            color: white;
+            padding: 15px;
+            text-align: left;
+            font-weight: 600;
+        }
+
+        td {
+            padding: 12px 15px;
+            border-bottom: 1px solid #ddd;
+        }
+
+        tr:nth-child(even) {
+            background: #f8f9fa;
+        }
+
+        tr:hover {
+            background: #e3f2fd;
+        }
+
+        .winner {
+            background: #d4edda !important;
+            font-weight: 600;
+        }
+
+        .chart-container {
+            margin: 30px 0;
+            text-align: center;
+        }
+
+        .chart-container img {
+            max-width: 100%;
+            height: auto;
+            border-radius: 8px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.15);
+            margin: 15px 0;
+        }
+
+        .chart-title {
+            font-weight: 600;
+            color: #2c3e50;
+            margin: 10px 0;
+            font-size: 1.1em;
+        }
+
+        .metric-card {
+            background: white;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            padding: 20px;
+            margin: 15px 0;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+
+        .metric-value {
+            font-size: 2.5em;
+            font-weight: 700;
+            color: #3498db;
+            margin: 10px 0;
+        }
+
+        .metric-label {
+            font-size: 1em;
+            color: #7f8c8d;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        footer {
+            background: #2c3e50;
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+
+        .grid-2 {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+
+        @media (max-width: 768px) {
+            .grid-2 {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        code {
+            background: #f4f4f4;
+            padding: 2px 6px;
+            border-radius: 3px;
+            font-family: 'Courier New', monospace;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <!-- Header -->
+        <header>
+            <h1>🛡️ AI-CTIDS</h1>
+            <p>AI-Driven Cyber Threat Detection and Intrusion Detection System</p>
+            <p style="font-size: 0.9em; margin-top: 10px;">Complete Model Performance Analysis Report</p>
+            <div>
+                <span class="badge">CICIDS2017 Dataset</span>
+                <span class="badge">7 Models Evaluated</span>
+                <span class="badge">2.8M Network Flows</span>
+                <span class="badge">15 Attack Classes</span>
+            </div>
+        </header>
+
+        <!-- Main Content -->
+        <div class="content">
+
+            <!-- Executive Summary -->
+            <h2>📊 Executive Summary</h2>
+
+            <div class="success">
+                <h3 style="margin-top: 0;">🏆 Winner: Decision Tree</h3>
+                <p><strong>Best Overall Model</strong> selected for production deployment based on comprehensive evaluation across 7 models.</p>
+                <ul>
+                    <li>✅ <strong>Highest F1-Score:</strong> 85.30% (best balanced performance)</li>
+                    <li>✅ <strong>Excellent Recall:</strong> 90.98% (catches 91% of attacks)</li>
+                    <li>✅ <strong>Fastest Inference:</strong> 0.09 seconds (real-time capability)</li>
+                    <li>✅ <strong>High Accuracy:</strong> 99.74% on unseen test data</li>
+                    <li>✅ <strong>Interpretable:</strong> Explainable decisions for security analysts</li>
+                </ul>
+            </div>
+
+            <div class="summary-box">
+                <h4>Dataset Information</h4>
+                <ul>
+                    <li><strong>Dataset:</strong> CICIDS2017 (Canadian Institute for Cybersecurity)</li>
+                    <li><strong>Total Network Flows:</strong> 2,830,743</li>
+                    <li><strong>Train/Val/Test Split:</strong> 70% / 15% / 15%</li>
+                    <li><strong>Features:</strong> 69 standardized numerical features</li>
+                    <li><strong>Classes:</strong> 15 (1 BENIGN + 14 attack types)</li>
+                    <li><strong>Class Distribution:</strong> Highly imbalanced (80.3% BENIGN traffic)</li>
+                </ul>
+            </div>
+
+            <!-- Dataset Visualization -->
+            <h2>📈 Dataset Overview</h2>
+
+            <div class="chart-container">
+                <p class="chart-title">Distribution of Network Traffic Classes</p>
+                <img src="charts/chart_001.png" alt="Traffic Class Distribution">
+            </div>
+
+            <div class="chart-container">
+                <p class="chart-title">Distribution of Network Traffic Classes (Log Scale)</p>
+                <img src="charts/chart_002.png" alt="Traffic Class Distribution (Log Scale)">
+            </div>
+
+            <div class="chart-container">
+                <p class="chart-title">Percentage Distribution of Network Traffic Classes</p>
+                <img src="charts/chart_003.png" alt="Percentage Distribution">
+            </div>
+
+            <!-- Data Quality -->
+            <h3>Data Quality Analysis</h3>
+
+            <div class="chart-container">
+                <p class="chart-title">Missing Value Analysis</p>
+                <img src="charts/chart_004.png" alt="Missing Values">
+            </div>
+
+            <div class="chart-container">
+                <p class="chart-title">Infinite Value Analysis</p>
+                <img src="charts/chart_005.png" alt="Infinite Values">
+            </div>
+
+            <!-- Model Performance Comparison -->
+            <h2>🎯 Model Performance Comparison</h2>
+
+            <h3>Complete Performance Metrics</h3>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Rank</th>
+                        <th>Model</th>
+                        <th>Category</th>
+                        <th>F1-Score</th>
+                        <th>Accuracy</th>
+                        <th>Precision</th>
+                        <th>Recall</th>
+                        <th>ROC-AUC</th>
+                        <th>Inference (sec)</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr class="winner">
+                        <td>🥇 1</td>
+                        <td><strong>Decision Tree</strong></td>
+                        <td>ML</td>
+                        <td><strong>85.30%</strong></td>
+                        <td>99.74%</td>
+                        <td>83.02%</td>
+                        <td><strong>90.98%</strong></td>
+                        <td>97.23%</td>
+                        <td><strong>0.09</strong></td>
+                    </tr>
+                    <tr>
+                        <td>🥈 2</td>
+                        <td>Random Forest</td>
+                        <td>ML</td>
+                        <td>79.31%</td>
+                        <td>99.17%</td>
+                        <td><strong>85.30%</strong></td>
+                        <td>84.69%</td>
+                        <td>99.96%</td>
+                        <td>5.47</td>
+                    </tr>
+                    <tr>
+                        <td>🥉 3</td>
+                        <td>XGBoost</td>
+                        <td>ML</td>
+                        <td>76.28%</td>
+                        <td><strong>99.88%</strong></td>
+                        <td>79.80%</td>
+                        <td>74.83%</td>
+                        <td><strong>99.99%</strong></td>
+                        <td>36.71</td>
+                    </tr>
+                    <tr>
+                        <td>4</td>
+                        <td>Logistic Regression</td>
+                        <td>ML</td>
+                        <td>27.57%</td>
+                        <td>66.07%</td>
+                        <td>24.02%</td>
+                        <td>65.22%</td>
+                        <td>91.89%</td>
+                        <td>0.14</td>
+                    </tr>
+                    <tr>
+                        <td>5</td>
+                        <td>Artificial Neural Network</td>
+                        <td>DL</td>
+                        <td>63.81%</td>
+                        <td>99.56%</td>
+                        <td>70.95%</td>
+                        <td>62.60%</td>
+                        <td>98.62%</td>
+                        <td>28.08</td>
+                    </tr>
+                    <tr>
+                        <td>6</td>
+                        <td>LSTM</td>
+                        <td>DL</td>
+                        <td>60.39%</td>
+                        <td>98.24%</td>
+                        <td>63.19%</td>
+                        <td>59.76%</td>
+                        <td>99.71%</td>
+                        <td>106.27</td>
+                    </tr>
+                    <tr>
+                        <td>7</td>
+                        <td>1D-CNN</td>
+                        <td>DL</td>
+                        <td>42.73%</td>
+                        <td>95.20%</td>
+                        <td>49.54%</td>
+                        <td>39.85%</td>
+                        <td>93.77%</td>
+                        <td>49.55</td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <div class="highlight">
+                <strong>Key Insight:</strong> Traditional machine learning models (Decision Tree, Random Forest, XGBoost) significantly outperformed deep learning models in F1-score, while also providing faster inference times. This suggests that the feature engineering already captured the relevant patterns effectively.
+            </div>
+
+
+            <!-- Individual Model Results -->
+            <h2>🔍 Individual Model Performance</h2>
+
+            <h3>1. Logistic Regression (Baseline)</h3>
+            <div class="metric-card">
+                <p><strong>Performance:</strong> F1: 27.57% | Accuracy: 66.07% | Inference: 0.14 sec</p>
+                <p><strong>Analysis:</strong> Baseline model struggled with class imbalance despite balanced class weights. Linear model insufficient for complex multiclass intrusion detection.</p>
+            </div>
+            <div class="chart-container">
+                <p class="chart-title">Logistic Regression - Confusion Matrix</p>
+                <img src="charts/chart_006.png" alt="Logistic Regression Confusion Matrix">
+            </div>
+
+            <h3>2. Decision Tree 🏆 (Production Model)</h3>
+            <div class="metric-card winner">
+                <p><strong>Performance:</strong> F1: <strong>85.30%</strong> | Accuracy: <strong>99.74%</strong> | Recall: <strong>90.98%</strong> | Inference: <strong>0.09 sec</strong></p>
+                <p><strong>Analysis:</strong> Best overall model selected for production. Excellent balance between precision (83.02%) and recall (90.98%), critical for security applications. Fastest inference enables real-time detection.</p>
+            </div>
+            <div class="chart-container">
+                <p class="chart-title">Decision Tree - Confusion Matrix</p>
+                <img src="charts/chart_007.png" alt="Decision Tree Confusion Matrix">
+            </div>
+
+            <h3>3. Random Forest</h3>
+            <div class="metric-card">
+                <p><strong>Performance:</strong> F1: 79.31% | Accuracy: 99.17% | <strong>Precision: 85.30%</strong> | ROC-AUC: <strong>99.96%</strong></p>
+                <p><strong>Analysis:</strong> Highest precision model - best for scenarios where false positives are costly. Near-perfect ROC-AUC indicates excellent class separation. Slower inference (5.47 sec) vs Decision Tree.</p>
+            </div>
+            <div class="chart-container">
+                <p class="chart-title">Random Forest - Feature Importance (Top 20)</p>
+                <img src="charts/chart_008.png" alt="Random Forest Feature Importance">
+            </div>
+            <div class="chart-container">
+                <p class="chart-title">Random Forest - Confusion Matrix</p>
+                <img src="charts/chart_009.png" alt="Random Forest Confusion Matrix">
+            </div>
+
+            <h3>4. XGBoost</h3>
+            <div class="metric-card">
+                <p><strong>Performance:</strong> F1: 76.28% | <strong>Accuracy: 99.88%</strong> | <strong>ROC-AUC: 99.99%</strong></p>
+                <p><strong>Analysis:</strong> Highest accuracy and near-perfect ROC-AUC. Excellent for batch scoring where speed is less critical. Longer training (748 sec) and inference (36.71 sec) times.</p>
+            </div>
+            <div class="chart-container">
+                <p class="chart-title">XGBoost - Training History (Loss)</p>
+                <img src="charts/chart_010.png" alt="XGBoost Training History">
+            </div>
+            <div class="chart-container">
+                <p class="chart-title">XGBoost - Confusion Matrix</p>
+                <img src="charts/chart_011.png" alt="XGBoost Confusion Matrix">
+            </div>
+
+            <h3>5. Artificial Neural Network (ANN)</h3>
+            <div class="metric-card">
+                <p><strong>Performance:</strong> F1: 63.81% | Accuracy: 99.56% | ROC-AUC: 98.62%</p>
+                <p><strong>Analysis:</strong> Best deep learning model but underperformed vs ML models. Training time: 1,244 sec. Suggests feature engineering already captured relevant patterns.</p>
+            </div>
+            <div class="grid-2">
+                <div class="chart-container">
+                    <p class="chart-title">ANN - Training & Validation Loss</p>
+                    <img src="charts/chart_012.png" alt="ANN Loss">
+                </div>
+                <div class="chart-container">
+                    <p class="chart-title">ANN - Training & Validation Accuracy</p>
+                    <img src="charts/chart_013.png" alt="ANN Accuracy">
+                </div>
+            </div>
+            <div class="chart-container">
+                <p class="chart-title">ANN - Confusion Matrix</p>
+                <img src="charts/chart_014.png" alt="ANN Confusion Matrix">
+            </div>
+
+            <h3>6. 1D Convolutional Neural Network (1D-CNN)</h3>
+            <div class="metric-card">
+                <p><strong>Performance:</strong> F1: 42.73% | Accuracy: 95.20% | ROC-AUC: 93.77%</p>
+                <p><strong>Analysis:</strong> Lowest F1-score among all models. Spatial convolution patterns less effective for tabular intrusion detection data. Training time: 1,935 sec.</p>
+            </div>
+            <div class="chart-container">
+                <p class="chart-title">1D-CNN - Training & Validation Loss</p>
+                <img src="charts/chart_015.png" alt="1D-CNN Loss">
+            </div>
+            <div class="chart-container">
+                <p class="chart-title">1D-CNN - Confusion Matrix</p>
+                <img src="charts/chart_016.png" alt="1D-CNN Confusion Matrix">
+            </div>
+
+            <h3>7. Long Short-Term Memory (LSTM)</h3>
+            <div class="metric-card">
+                <p><strong>Performance:</strong> F1: 60.39% | Accuracy: 98.24% | ROC-AUC: 99.71%</p>
+                <p><strong>Analysis:</strong> Second-best deep learning model. Very long training time (8,155 sec ≈ 2.3 hours) with modest performance gain. Temporal patterns not critical for this dataset.</p>
+            </div>
+            <div class="chart-container">
+                <p class="chart-title">LSTM - Training & Validation Loss</p>
+                <img src="charts/chart_017.png" alt="LSTM Loss">
+            </div>
+            <div class="chart-container">
+                <p class="chart-title">LSTM - Confusion Matrix</p>
+                <img src="charts/chart_018.png" alt="LSTM Confusion Matrix">
+            </div>
+
+            <!-- Key Findings -->
+            <h2>📌 Key Findings & Recommendations</h2>
+
+            <div class="summary-box">
+                <h4>Major Findings</h4>
+                <ol>
+                    <li><strong>Tree-Based Models Dominate:</strong> Decision Tree, Random Forest, and XGBoost achieved top F1-scores (76-85%), significantly outperforming deep learning models (43-64%).</li>
+                    <li><strong>Deep Learning Underperformed:</strong> Despite longer training times (1,200-8,000 sec), DL models couldn't match traditional ML performance, suggesting effective feature engineering.</li>
+                    <li><strong>Decision Tree Selected:</strong> Best F1-score (85.30%), excellent recall (90.98%), and fastest inference (0.09 sec) make it ideal for production.</li>
+                    <li><strong>Class Imbalance Handled:</strong> Macro F1-score and balanced class weights ensured fair evaluation across all 15 attack classes.</li>
+                </ol>
+            </div>
+
+            <div class="success">
+                <h4>Production Deployment Recommendations</h4>
+                <p><strong>For Real-Time Detection:</strong></p>
+                <ul>
+                    <li>✅ Primary Model: <strong>Decision Tree</strong> (fast, accurate, balanced)</li>
+                    <li>✅ Fallback Model: <strong>Random Forest</strong> (if false positives costly)</li>
+                </ul>
+                <p><strong>For Batch Analysis:</strong></p>
+                <ul>
+                    <li>✅ Primary Model: <strong>XGBoost</strong> (highest accuracy and ROC-AUC)</li>
+                    <li>Speed less critical in batch mode</li>
+                </ul>
+            </div>
+
+            <div class="highlight">
+                <h4>Future Improvements</h4>
+                <ul>
+                    <li>🔄 Ensemble Decision Tree + Random Forest for optimal precision/recall balance</li>
+                    <li>🎯 Hyperparameter optimization using Bayesian methods (Optuna)</li>
+                    <li>📊 Collect more samples of rare attacks (Heartbleed, SQL Injection, Infiltration)</li>
+                    <li>🚀 Model quantization for faster inference</li>
+                    <li>📈 A/B testing framework for model comparison in production</li>
+                </ul>
+            </div>
+
+            <!-- Computational Performance -->
+            <h2>⚡ Computational Performance Summary</h2>
+
+            <h3>Training Time Comparison</h3>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Rank</th>
+                        <th>Model</th>
+                        <th>Training Time (sec)</th>
+                        <th>Training Time (min)</th>
+                        <th>Category</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>1</td>
+                        <td>Decision Tree</td>
+                        <td>189.04</td>
+                        <td>3.15</td>
+                        <td>⚡ Fastest</td>
+                    </tr>
+                    <tr>
+                        <td>2</td>
+                        <td>Random Forest</td>
+                        <td>194.69</td>
+                        <td>3.24</td>
+                        <td>⚡ Fast</td>
+                    </tr>
+                    <tr>
+                        <td>3</td>
+                        <td>XGBoost</td>
+                        <td>748.26</td>
+                        <td>12.47</td>
+                        <td>🟡 Moderate</td>
+                    </tr>
+                    <tr>
+                        <td>4</td>
+                        <td>Logistic Regression</td>
+                        <td>1,180.56</td>
+                        <td>19.68</td>
+                        <td>🟡 Moderate</td>
+                    </tr>
+                    <tr>
+                        <td>5</td>
+                        <td>ANN</td>
+                        <td>1,243.98</td>
+                        <td>20.73</td>
+                        <td>🟡 Moderate</td>
+                    </tr>
+                    <tr>
+                        <td>6</td>
+                        <td>1D-CNN</td>
+                        <td>1,934.68</td>
+                        <td>32.24</td>
+                        <td>🔴 Slow</td>
+                    </tr>
+                    <tr>
+                        <td>7</td>
+                        <td>LSTM</td>
+                        <td>8,154.83</td>
+                        <td>135.91</td>
+                        <td>🔴 Very Slow</td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <h3>Inference Time Comparison</h3>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Rank</th>
+                        <th>Model</th>
+                        <th>Inference Time (sec)</th>
+                        <th>Throughput (samples/sec)</th>
+                        <th>Category</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr class="winner">
+                        <td>1</td>
+                        <td><strong>Decision Tree</strong></td>
+                        <td><strong>0.09</strong></td>
+                        <td>~4,717,911</td>
+                        <td>⚡ Fastest</td>
+                    </tr>
+                    <tr>
+                        <td>2</td>
+                        <td>Logistic Regression</td>
+                        <td>0.14</td>
+                        <td>~3,032,943</td>
+                        <td>⚡ Very Fast</td>
+                    </tr>
+                    <tr>
+                        <td>3</td>
+                        <td>Random Forest</td>
+                        <td>5.47</td>
+                        <td>~77,619</td>
+                        <td>🟢 Fast</td>
+                    </tr>
+                    <tr>
+                        <td>4</td>
+                        <td>ANN</td>
+                        <td>28.08</td>
+                        <td>~15,121</td>
+                        <td>🟡 Moderate</td>
+                    </tr>
+                    <tr>
+                        <td>5</td>
+                        <td>XGBoost</td>
+                        <td>36.71</td>
+                        <td>~11,570</td>
+                        <td>🟡 Moderate</td>
+                    </tr>
+                    <tr>
+                        <td>6</td>
+                        <td>1D-CNN</td>
+                        <td>49.55</td>
+                        <td>~8,569</td>
+                        <td>🔴 Slow</td>
+                    </tr>
+                    <tr>
+                        <td>7</td>
+                        <td>LSTM</td>
+                        <td>106.27</td>
+                        <td>~3,996</td>
+                        <td>🔴 Very Slow</td>
+                    </tr>
+                </tbody>
+            </table>
+
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer>
+        <h3>AI-CTIDS Project</h3>
+        <p>AI-Driven Cyber Threat Detection and Intrusion Detection System</p>
+        <p style="margin-top: 15px; opacity: 0.8;">
+            <strong>Dataset:</strong> CICIDS2017 |
+            <strong>Models:</strong> 7 (4 ML + 3 DL) |
+            <strong>Best Model:</strong> Decision Tree (F1: 85.30%)
+        </p>
+        <p style="margin-top: 10px; font-size: 0.9em;">
+            Last Updated: January 2025 | Generated from AAI590_Group_1_Capstone_Project
+        </p>
+        <p style="margin-top: 15px; font-size: 0.85em; opacity: 0.7;">
+            📄 For detailed analysis, see <code>docs/MODEL_RESULTS.md</code>
+        </p>
+    </footer>
+
+</body>
+</html>
